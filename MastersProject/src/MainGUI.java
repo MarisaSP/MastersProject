@@ -7,6 +7,17 @@ import java.awt.Font;
 import java.awt.Color;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.border.LineBorder;
+import javax.swing.border.SoftBevelBorder;
+import javax.swing.border.BevelBorder;
+import javax.swing.JButton;
+import java.awt.GridLayout;
+import javax.swing.BoxLayout;
+import java.awt.FlowLayout;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingConstants;
 
 public class MainGUI {
 
@@ -44,29 +55,43 @@ public class MainGUI {
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		JLabel lblNewLabel = new JLabel("FC[REG]-CQ");
-		lblNewLabel.setBackground(Color.WHITE);
-		lblNewLabel.setFont(new Font("Arial", Font.PLAIN, 13));
-		lblNewLabel.setHorizontalAlignment(JLabel.CENTER);
-		frame.getContentPane().add(lblNewLabel, BorderLayout.NORTH);
+		JLabel titleLbl = new JLabel("FC[REG]-CQ");
 		
-		JPanel panel = new JPanel();
-		frame.getContentPane().add(panel, BorderLayout.WEST);
+		JLabel createtableLbl = new JLabel("Create Table");
 		
-		JLabel lblNewLabel_1 = new JLabel("Create Table");
-		panel.add(lblNewLabel_1);
+		JLabel querytablesLbl = new JLabel("Query Tables");
 		
-		JPanel panel_1 = new JPanel();
-		frame.getContentPane().add(panel_1, BorderLayout.EAST);
-		
-		JLabel lblNewLabel_2 = new JLabel("Query Tables");
-		panel_1.add(lblNewLabel_2);
-		
-		JPanel panel_2 = new JPanel();
-		frame.getContentPane().add(panel_2, BorderLayout.CENTER);
-		
-		JLabel lblNewLabel_3 = new JLabel("Display Table");
-		panel_2.add(lblNewLabel_3);
+		JLabel displaytableLbl = new JLabel("Display Table");
+		displaytableLbl.setVerticalAlignment(SwingConstants.BOTTOM);
+		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
+		groupLayout.setHorizontalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGap(43)
+					.addComponent(createtableLbl)
+					.addPreferredGap(ComponentPlacement.RELATED, 215, Short.MAX_VALUE)
+					.addComponent(querytablesLbl)
+					.addGap(53))
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGap(188)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(displaytableLbl)
+						.addComponent(titleLbl))
+					.addContainerGap(177, Short.MAX_VALUE))
+		);
+		groupLayout.setVerticalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(titleLbl)
+					.addGap(39)
+					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(createtableLbl)
+						.addComponent(querytablesLbl))
+					.addGap(67)
+					.addComponent(displaytableLbl)
+					.addContainerGap(112, Short.MAX_VALUE))
+		);
+		frame.getContentPane().setLayout(groupLayout);
 	}
-
 }
