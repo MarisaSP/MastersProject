@@ -1,4 +1,5 @@
 import java.awt.EventQueue;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -50,8 +51,9 @@ public class MainGUI {
 	 */
 	public MainGUI() {
 		initialize();
-		String result = generateArrays.LCPArray("","anab");
-		System.out.println(result);
+		
+		//String result = generateArrays.LCPArray("","anab");
+		//System.out.println(result);
 	}
 
 	/**
