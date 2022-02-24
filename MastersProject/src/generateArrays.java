@@ -16,14 +16,22 @@ public class generateArrays {
 
 		System.out.println(arrayOfUnsortedSuffixes);
 		Collections.sort(arrayOfUnsortedSuffixes);
-		suffixArray.add(word.length());
-		for(int i=0;i<arrayOfUnsortedSuffixes.size();i++) {
-			for(int j=0; j<word.length();j++) {
-				String toCompare = word.substring(j);
-				if(arrayOfUnsortedSuffixes.get(i).equals(toCompare)) {
-					suffixArray.add(j);
-				}
-			}
+		
+		  /*for(int i=0;i<arrayOfUnsortedSuffixes.size();i++) { 
+			  for(int j=0;j<word.length();j++) {
+			  	String toCompare = word.substring(j);
+			  	if(arrayOfUnsortedSuffixes.get(i).equals(toCompare)) { 
+			  		suffixArray.add(j); 
+				  }
+			  }
+		  }*/
+		System.out.println(arrayOfUnsortedSuffixes);
+		for(int i=0; i<arrayOfUnsortedSuffixes.size();i++) {
+			int lengthOfSuffix = arrayOfUnsortedSuffixes.get(i).length();
+			int wordLength = word.length();
+			int position = wordLength - lengthOfSuffix;
+			suffixArray.add(position); 
+			
 		}
 		
 		
@@ -31,6 +39,27 @@ public class generateArrays {
 		
 	}
 	
+	public static ArrayList<Integer> LCP(ArrayList<Integer> suffixArray, String word) {
+
+		ArrayList<Integer> LCPArray = new ArrayList<Integer>();
+		LCPArray.add(null);
+		
+		int maxWordPos = word.length()-1;
+		
+		for(int i=1; i<suffixArray.size(); i++) {
+			int lcpValue = 0;
+			int firstPos = suffixArray.get(i);
+			int secondPos = suffixArray.get(i-1);
+			if(firstPos>maxWordPos || secondPos>maxWordPos) {
+				lcpValue=0;
+			} //else if (){
+				
+			//}
+		}
+		
+		
+		return LCPArray;
+	}
 	
 	public static ArrayList<Integer> generateLCPArray(ArrayList<Integer> suffixArray, String word) {
 		
@@ -43,7 +72,7 @@ public class generateArrays {
 			String substrOne = word.substring(lastSuffixInt);
 			String substrTwo = word.substring(suffixArray.get(i));
 			
-			int LCP = LCPArray(substrOne, substrTwo);
+			int LCP = LCParray(substrOne, substrTwo);
 			LCPArray.add(LCP);
 			
 			lastSuffixInt = suffixArray.get(i);
@@ -54,13 +83,13 @@ public class generateArrays {
 	
 	}
 	
-public static int LCPArray(String suffOne, String suffTwo) {
+public static int LCParray(String suffOne, String suffTwo) {
 		
 		String lcp = "";
 		int suffOneLength = suffOne.length();
 		int suffTwoLength = suffTwo.length();
 		int shortestLength = 0;
-		
+	
 		if(suffOneLength > suffTwoLength) {
 			shortestLength = suffTwoLength;
 		}else {
@@ -80,7 +109,7 @@ public static int LCPArray(String suffOne, String suffTwo) {
 	}
 	
 public static int rangeMinimumQuery (ArrayList<Integer> array, int firstPos, int lastPos) {
-	
+	//check how to use
 	int lowest=array.get(firstPos);
 	int lowestPos = firstPos;
 	for(int i = firstPos; i<lastPos+1; i++) {
