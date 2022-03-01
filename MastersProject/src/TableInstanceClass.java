@@ -4,70 +4,65 @@ import java.util.ArrayList;
 public class TableInstanceClass {
 	
 	String strStored;
-	List<String> tableColumns;
-	List<String> records;
+	ArrayList<ArrayList<int []>> allRecords;
 
-	public void createTable(int wordLength, List<String> columns) {
-		ArrayList arrayOfRecords = new ArrayList();
-		ArrayList record = new ArrayList();
-		if (columns.size() == 1) {
-			record.add(subword(0,wordLength));
-			arrayOfRecords.add(recordToAppend(record));
-			
-		}
-		else {
-			
-		}
-	}
-	
-    public ArrayList recordToAppend (ArrayList tempList) {
-        ArrayList append = new ArrayList<>();
-       // for (ArrayList s: tempList) {
-       //     append.add(s);
-      //  }
-        return append;
-    }
+	ArrayList<Integer> suffixArray;
+	ArrayList<Integer> lcpArray;
 	
 	
 	
-	
-	public ArrayList subword(int i, int j) {
-		ArrayList sw = new ArrayList();
-		sw.add(i);
-		sw.add(j);
-		return sw;
+	public void setup(String thisWord, ArrayList<ArrayList<int []>> records) {
+		strStored = thisWord;
+		allRecords = records;
 	}
 	
 	public static ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols, int wordLength) {
-		ArrayList allRecords = new ArrayList<ArrayList>();
-		ArrayList singleRecord = new ArrayList<int []>();
+		ArrayList<ArrayList<int []>> allRecords = new ArrayList<ArrayList<int []>>();
+		ArrayList<int []> singleRecord = new ArrayList<int []>();
 		int entry[]=new int[2];
 		
-		if(i>j) {
-			entry[0]=-1;
-			entry[1]=-1;
+		//If string is empty, each column is set to the empty word
+		if(i==j) {
+			entry[0]=i;
+			entry[1]=i;
 			for(int m=0; m<cols; m++) {
 				singleRecord.add(consolidateEntry(entry));
 			}
-		allRecords.add(singleRecord);
+		allRecords.add(consolidateSingleRecords(singleRecord));
 		
+		//If only one column, the column contains the whole string
 		}else if (cols==1){
 			entry[0]=i;
 			entry[1]=j;
 			singleRecord.add(consolidateEntry(entry));
-			allRecords.add(singleRecord);
+			allRecords.add(consolidateSingleRecords(singleRecord));
+			
+			
 		}else {
 			entry[0]=i;
 			entry[1]=j;
 			singleRecord.add(consolidateEntry(entry));
 			for(int x=1; x<cols;x++) {
-				entry[0]=-1;
-				entry[1]=-1;
+				entry[0]=j;
+				entry[1]=j;
 				singleRecord.add(consolidateEntry(entry));
 			}
-			allRecords.add(singleRecord);
-			for(int m=0; m<(j-i); m++) {
-				
+			allRecords.add(consolidateSingleRecords(singleRecord));
+			singleRecord.clear();
+			
+			for(int m=1; m<=(j-i); m++) {
+				ArrayList<ArrayList <int[]>> theseRecords = makeTbl(j-m, j, cols-1, wordLength);
+				for(ArrayList <int []> b : theseRecords) {
+					entry[0]=i;
+					entry[1]=j-m;
+					singleRecord.add(consolidateEntry(entry));
+					for( int [] c : b) {
+						singleRecord.add(consolidateEntry(c));
+						
+					}
+					allRecords.add(consolidateSingleRecords(singleRecord));
+					singleRecord.clear();
+				}
 			}
 		}
 		
@@ -82,6 +77,27 @@ public class TableInstanceClass {
 		entryOut[0] = entryIn[0];
 		entryOut[1] = entryIn[1];
 		return entryOut;
+	}
+	
+	public static ArrayList<int []> consolidateSingleRecords(ArrayList<int []> singleRecIn) {
+		ArrayList singleRecOut = new ArrayList<int []>();
+		for( int [] c : singleRecIn) {
+			singleRecOut.add(consolidateEntry(c));
+		}
+		return singleRecOut;
+	}
+	
+	public void formArrays() {
+		suffixArray = generateArrays.SuffixArray(strStored);
+		lcpArray = generateArrays.LCP(suffixArray, strStored);
+	}
+	
+	public ArrayList<Integer> getSuffixArray() {
+		return suffixArray;
+	}
+	
+	public ArrayList<Integer> getLCPArray() {
+		return lcpArray;
 	}
 }
 

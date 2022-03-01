@@ -18,16 +18,18 @@ class TestArrays {
 		int result = generateArrays.rangeMinimumQuery(LCPArray, 2, 3);
 		System.out.println("RMQ");
 		System.out.println(result); */
-		ArrayList<ArrayList<int []>> a = TableInstanceClass.makeTbl(0,5,5,6);
+		TableInstanceClass thisTable = new TableInstanceClass();
+		ArrayList<ArrayList<int []>> a = thisTable.makeTbl(0,4,2,4);
 		for(ArrayList <int []> b : a) {
 			int count = 0;
 			for( int [] c : b) {
-				System.out.println("Count: "+count);
-				System.out.println(c[0]);
-				System.out.println(c[1]);
+				System.out.print("["+c[0]+","+c[1] + ")"+ " ");
 				count++;
 			}
+			System.out.println(" ");
 		}
+		thisTable.setup("abab",a);
+		thisTable.formArrays();
 	}
 
 }

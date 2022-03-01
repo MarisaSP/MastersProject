@@ -109,7 +109,7 @@ public static int LCParray(String suffOne, String suffTwo) {
 	}
 	
 public static int rangeMinimumQuery (ArrayList<Integer> array, int firstPos, int lastPos) {
-	//check how to use
+	
 	int lowest=array.get(firstPos);
 	int lowestPos = firstPos;
 	for(int i = firstPos; i<lastPos+1; i++) {
