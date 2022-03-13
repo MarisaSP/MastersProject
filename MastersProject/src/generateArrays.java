@@ -39,6 +39,33 @@ public class generateArrays {
 		
 	}
 	
+	public static int lookUpLCP(ArrayList<Integer> LCPArray, ArrayList<Integer> inverseSuffixArray, int one, int two) {
+		int SAOne;
+		int SATwo;
+		int returnLCP = 0;
+		one=inverseSuffixArray.get(one);
+		two=inverseSuffixArray.get(two);
+		if(one>two) {
+			SAOne=two;
+			SATwo=one;
+		}else {
+			SAOne=one;
+			SATwo=two;
+		}
+		System.out.println("SAOne: "+(SAOne+1));
+		System.out.println("SATwo: "+SATwo);
+		if(SAOne<SATwo) {
+			System.out.println("Ran");
+			returnLCP=rangeMinimumQuery(LCPArray, SAOne+1, SATwo);
+		}
+		if(returnLCP!=0) {
+			return LCPArray.get(returnLCP);
+		}
+		else {
+			return 0;
+		}
+	}
+	
 	public static ArrayList<Integer> LCP(ArrayList<Integer> suffixArray, String word) {
 
 		ArrayList<Integer> LCPArray = new ArrayList<Integer>();
@@ -121,6 +148,23 @@ public static int rangeMinimumQuery (ArrayList<Integer> array, int firstPos, int
 	}
 		
 	return lowestPos;
+}
+
+public static ArrayList<Integer> generateInverseSuffixArray (ArrayList<Integer> suffixArray){
+	ArrayList<Integer> inverse = new ArrayList<Integer>();
+	
+	int count=0;
+	while(count!=suffixArray.size()) {
+		
+		for(int i=0; i<suffixArray.size(); i++) {
+			
+			if(count == suffixArray.get(i)) {
+				inverse.add(i);
+			}
+		}
+		count++;
+	}
+	return inverse;
 }
 
 

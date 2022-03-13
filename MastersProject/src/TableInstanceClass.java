@@ -8,6 +8,7 @@ public class TableInstanceClass {
 
 	ArrayList<Integer> suffixArray;
 	ArrayList<Integer> lcpArray;
+	ArrayList<Integer> inverseSuffixArray;
 	
 	
 	
@@ -89,7 +90,8 @@ public class TableInstanceClass {
 	
 	public void formArrays() {
 		suffixArray = generateArrays.SuffixArray(strStored);
-		lcpArray = generateArrays.LCP(suffixArray, strStored);
+		lcpArray = generateArrays.generateLCPArray(suffixArray, strStored);
+		inverseSuffixArray = generateArrays.generateInverseSuffixArray(suffixArray);
 	}
 	
 	public ArrayList<Integer> getSuffixArray() {
@@ -98,6 +100,10 @@ public class TableInstanceClass {
 	
 	public ArrayList<Integer> getLCPArray() {
 		return lcpArray;
+	}
+	
+	public ArrayList<Integer> getInverseSuffixArray(){
+		return inverseSuffixArray;
 	}
 }
 
