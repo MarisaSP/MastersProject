@@ -43,26 +43,28 @@ public class generateArrays {
 		int SAOne;
 		int SATwo;
 		int returnLCP = 0;
-		one=inverseSuffixArray.get(one);
-		two=inverseSuffixArray.get(two);
-		if(one>two) {
-			SAOne=two;
-			SATwo=one;
-		}else {
-			SAOne=one;
-			SATwo=two;
-		}
-		System.out.println("SAOne: "+(SAOne+1));
-		System.out.println("SATwo: "+SATwo);
-		if(SAOne<SATwo) {
-			System.out.println("Ran");
-			returnLCP=rangeMinimumQuery(LCPArray, SAOne+1, SATwo);
-		}
-		if(returnLCP!=0) {
-			return LCPArray.get(returnLCP);
-		}
-		else {
+		if( (one>=inverseSuffixArray.size()) || (two>=inverseSuffixArray.size()) )
+		{
 			return 0;
+		}else {
+			one=inverseSuffixArray.get(one);
+			two=inverseSuffixArray.get(two);
+			if(one>two) {
+				SAOne=two;
+				SATwo=one;
+			}else {
+				SAOne=one;
+				SATwo=two;
+			}
+			if(SAOne<SATwo) {
+				returnLCP=rangeMinimumQuery(LCPArray, SAOne+1, SATwo);
+			}
+			if(returnLCP!=0) {
+				return LCPArray.get(returnLCP);
+			}
+			else {
+				return 0;
+			}
 		}
 	}
 	
@@ -79,9 +81,7 @@ public class generateArrays {
 			int secondPos = suffixArray.get(i-1);
 			if(firstPos>maxWordPos || secondPos>maxWordPos) {
 				lcpValue=0;
-			} //else if (){
-				
-			//}
+			} 
 		}
 		
 		

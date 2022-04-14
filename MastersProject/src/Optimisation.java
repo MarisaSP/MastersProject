@@ -7,7 +7,6 @@ public class Optimisation extends TableInstanceClass{
 		ArrayList<ArrayList<int []>> optimisedTable = new ArrayList<ArrayList<int []>>();
 		int[] indexes = new int[2];
 		ArrayList<int []> freshRecords = new ArrayList<int []>();
-		System.out.println("a");
 		for (ArrayList<int []> eachRecord : tableToOptimise) {
 			for ( int[] b : eachRecord) {
 				indexes[0]=b[0];
@@ -19,12 +18,19 @@ public class Optimisation extends TableInstanceClass{
 					}
 				}
 				if(!found) {
+					int LCP;
 					for(int[] OG : originals) {
-						int LCP = generateArrays.lookUpLCP(lcpArray, inverseSuffixArray, Integer.valueOf(b[0]), Integer.valueOf(OG[0]));
-						if( (LCP >= (b[1]-b[0])&&(LCP!=0)) || (( (b[1]-b[0])==0) && (OG[1]-OG[0]==0)) ) {
-							found = true;
-							indexes[0]=OG[0];
-							indexes[1]=OG[1];
+						if(OG[0]==OG[1] || b[0]==b[1]) {
+							LCP = 0;
+						}else {
+							LCP = generateArrays.lookUpLCP(lcpArray, inverseSuffixArray, Integer.valueOf(b[0]), Integer.valueOf(OG[0]));
+						}
+						if( (b[1]-b[0]) == (OG[1]-OG[0]) ) {
+							if( ((LCP >= (b[1]-b[0])) && (LCP!=0)) || (( (b[1]-b[0])==0) && (OG[1]-OG[0]==0)) ) {
+								found = true;
+								indexes[0]=OG[0];
+								indexes[1]=OG[1];
+							}
 						}
 					}
 					
