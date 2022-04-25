@@ -9,6 +9,35 @@ class TestArrays {
 	void test() {
 		
 		
+		
+		TestLibrary testLibrary = new TestLibrary();
+		testLibrary.setup("abba","m=xy");
+		
+		ArrayList<ArrayList<int []>> firstTbl = testLibrary.getTable();
+		System.out.println("OGtable");
+		for(ArrayList <int []> b : firstTbl) {
+			int count = 0;
+			for( int [] c : b) {
+				System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+				count++;
+			}
+			System.out.println(" ");
+		}
+		
+		testLibrary.addRegularConstraint("x", ".*b");
+		
+		ArrayList<ArrayList<int []>> secondTbl = testLibrary.getTable();
+		System.out.println("New");
+		for(ArrayList <int []> b : secondTbl) {
+			int count = 0;
+			for( int [] c : b) {
+				System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+				count++;
+			}
+			System.out.println(" ");
+		}
+		
+		/*
 		ArrayList<ArrayList<int []>> mytbl = new ArrayList<>();
 		int[] first = new int[2];		
 		first[0] = 0;
@@ -63,7 +92,7 @@ class TestArrays {
 				count++;
 			}
 			System.out.println(" ");
-		}
+		}*/
 		
 	/*	tl.setup("banana", 2);
 		ArrayList<ArrayList<int []>> a = tl.getTable();

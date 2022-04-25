@@ -1,11 +1,13 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 public class TestLibrary {
 	
 	String STOREDWORD;
 	int STOREDWORDLENGTH;
 	ArrayList<ArrayList<int []>> TABLE;
+	ArrayList<String> COLUMNS;
 
 	ArrayList<Integer> SUFFIXARRAY;
 	ArrayList<Integer> LCPARRAY;
@@ -13,7 +15,7 @@ public class TestLibrary {
 	ArrayList<int []> SUBWORDLIST;
 	
 
-	public void setup(String thisWord, int cols) {
+	public void setup(String thisWord, String eqn) {
 		STOREDWORD=thisWord;
 		STOREDWORDLENGTH = thisWord.length();
 		
@@ -21,12 +23,60 @@ public class TestLibrary {
 		LCPARRAY = generateLCPArray();
 		INVERSESUFFIXARRAY = generateInverseSuffixArray();
 		
-		TABLE=makeTbl(0, STOREDWORDLENGTH, cols, STOREDWORDLENGTH);
+		int cols = eqnSort(eqn);
+		
+		TABLE=makeTbl(0, STOREDWORDLENGTH, cols);
 		
 		
 	}
+	
+	private int eqnSort(String fullStr) {
+		String[] sections = fullStr.split("=");
+		String mainstring = sections[0];
+		String columns = sections[1];
+		ArrayList<String> cols = new ArrayList<>();
 		
-	private ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols, int wordLength) {
+		char[] charArr = columns.toCharArray();	 
+	    for (char ch: charArr) {
+	        cols.add(Character.toString(ch));
+	    }
+		COLUMNS = cols;
+		int noOfCols = columns.length();
+		return noOfCols;
+	}
+	
+	public void addRegularConstraint(String cols, String regConstr) {
+		ArrayList<ArrayList<int []>> oldTable = TABLE;
+		ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
+		ArrayList<Integer> colsToApply = new ArrayList<>();
+		String[] colms = cols.split(",");
+		for(String s : colms) {
+			for(int i=0; i<COLUMNS.size(); i++) {
+				if(s.equals(COLUMNS.get(i))){
+					colsToApply.add(i);
+				}
+			}
+		}
+		for(ArrayList<int []> record : oldTable) {
+			boolean regexCheck = true;
+			for(int a : colsToApply) {
+				int [] entry = record.get(a);
+				String strToTest = STOREDWORD.substring(entry[0], entry[1]);
+				boolean regexMatch = Pattern.matches(regConstr, strToTest);
+				if(!regexMatch) {
+					regexCheck=false;
+				}
+			}
+			
+			if(regexCheck) {
+				newTable.add(consolidateSingleRecords(record));
+			}
+		}
+		
+		TABLE = newTable;
+	}
+	
+	private ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols) {
 			ArrayList<ArrayList<int []>> allRecords = new ArrayList<ArrayList<int []>>();
 			ArrayList<int []> singleRecord = new ArrayList<int []>();
 			int entry[]=new int[2];
@@ -61,7 +111,7 @@ public class TestLibrary {
 				singleRecord.clear();
 				
 				for(int m=1; m<=(j-i); m++) {
-					ArrayList<ArrayList <int[]>> theseRecords = makeTbl(j-m, j, cols-1, wordLength);
+					ArrayList<ArrayList <int[]>> theseRecords = makeTbl(j-m, j, cols-1);
 					for(ArrayList <int []> b : theseRecords) {
 						entry[0]=i;
 						entry[1]=j-m;
@@ -83,14 +133,14 @@ public class TestLibrary {
 		}
 		
 		
-		private int[] consolidateEntry(int[] entryIn) {
+	private int[] consolidateEntry(int[] entryIn) {
 			int entryOut[] = new int[2];
 			entryOut[0] = entryIn[0];
 			entryOut[1] = entryIn[1];
 			return entryOut;
 		}
 		
-		private ArrayList<int []> consolidateSingleRecords(ArrayList<int []> singleRecIn) {
+	private ArrayList<int []> consolidateSingleRecords(ArrayList<int []> singleRecIn) {
 			ArrayList singleRecOut = new ArrayList<int []>();
 			for( int [] c : singleRecIn) {
 				singleRecOut.add(consolidateEntry(c));
@@ -98,7 +148,7 @@ public class TestLibrary {
 			return singleRecOut;
 		}
 		
-		private ArrayList<Integer> SuffixArray (){
+	private ArrayList<Integer> SuffixArray (){
 			
 			String word = STOREDWORD;
 			ArrayList<Integer> suffixArray = new ArrayList<Integer>();
@@ -122,7 +172,7 @@ public class TestLibrary {
 			
 		}
 		
-		private ArrayList<Integer> generateLCPArray() {
+	private ArrayList<Integer> generateLCPArray() {
 			String word = STOREDWORD;
 			ArrayList<Integer>  suffixArray = SUFFIXARRAY;
 			ArrayList<Integer> LCPArray = new ArrayList<Integer>();
@@ -145,7 +195,7 @@ public class TestLibrary {
 		
 		}
 		
-		private int LCParray(String suffOne, String suffTwo) {
+	private int LCParray(String suffOne, String suffTwo) {
 			
 			String lcp = "";
 			int suffOneLength = suffOne.length();
@@ -170,7 +220,7 @@ public class TestLibrary {
 			return lcp.length();
 		}
 		
-		private ArrayList<Integer> generateInverseSuffixArray (){
+	private ArrayList<Integer> generateInverseSuffixArray (){
 			ArrayList<Integer> suffixArray = SUFFIXARRAY;
 			ArrayList<Integer> inverse = new ArrayList<Integer>();
 			
@@ -188,7 +238,7 @@ public class TestLibrary {
 			return inverse;
 		}
 		
-		public int noOfSubwordsSetLength(int lengthOfSubword){
+	public int noOfSubwordsSetLength(int lengthOfSubword){
 			int subBound = (STOREDWORD.length()+1)-lengthOfSubword;
 			
 			for(int i=1; i<LCPARRAY.size(); i++) {
@@ -200,7 +250,7 @@ public class TestLibrary {
 			return subBound;
 		}
 		
-		public void eliminateRepititionsInTbl() {
+	public void eliminateRepititionsInTbl() {
 			ArrayList<Integer> inverseSuffixArray = INVERSESUFFIXARRAY;
 			ArrayList<Integer> lcpArray = LCPARRAY;
 			ArrayList<ArrayList<int []>> tableToOptimise = TABLE;
@@ -251,7 +301,7 @@ public class TestLibrary {
 			TABLE = optimisedTable;
 		}
 		
-		private int lookUpLCP(ArrayList<Integer> LCPArray, ArrayList<Integer> inverseSuffixArray, int one, int two) {
+	private int lookUpLCP(ArrayList<Integer> LCPArray, ArrayList<Integer> inverseSuffixArray, int one, int two) {
 			int SAOne;
 			int SATwo;
 			int returnLCP = 0;
@@ -280,7 +330,7 @@ public class TestLibrary {
 			}
 		}
 		
-		private int rangeMinimumQuery (ArrayList<Integer> array, int firstPos, int lastPos) {
+	private int rangeMinimumQuery (ArrayList<Integer> array, int firstPos, int lastPos) {
 			
 			int lowest=array.get(firstPos);
 			int lowestPos = firstPos;
@@ -294,9 +344,8 @@ public class TestLibrary {
 				
 			return lowestPos;
 		}
-		
-		
-		public ArrayList<int []> enumerateAllSubwords() {
+			
+	public ArrayList<int []> enumerateAllSubwords() {
 			ArrayList<int []> subwordList = new ArrayList<int[]>();
 			int [] subword = new int[2];
 			int count = 0;
@@ -340,11 +389,11 @@ public class TestLibrary {
 			return subwordList;
 		}
 		
-		public void stringEqualityTesting() {
+	public void stringEqualityTesting() {
 			
 		}
 		
-		public void deDuplicate(ArrayList<ArrayList<int []>> tbl) {
+	public void deDuplicate(ArrayList<ArrayList<int []>> tbl) {
 			//ArrayList<ArrayList<int []>> oldTable = TABLE;
 			//ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
 			ArrayList<ArrayList<int []>> oldTable = tbl;
@@ -376,22 +425,19 @@ public class TestLibrary {
 			TABLE=newTable;
 		}
 
-		public ArrayList<Integer> getSuffixArray(){
+	public ArrayList<Integer> getSuffixArray(){
 			return SUFFIXARRAY;
 		}
-
-		public ArrayList<Integer> getLCPArray(){
+	public ArrayList<Integer> getLCPArray(){
 			return LCPARRAY;
 		}
-		
-		public ArrayList<Integer> getInverseSuffixArray(){
+	public ArrayList<Integer> getInverseSuffixArray(){
 			return INVERSESUFFIXARRAY;
 		}
-
-		public ArrayList<ArrayList<int []>> getTable(){
+	public ArrayList<ArrayList<int []>> getTable(){
 			return TABLE;
 		}
-		public void setTable(ArrayList<ArrayList<int []>> tbl){
+	public void setTable(ArrayList<ArrayList<int []>> tbl){
 			TABLE=tbl;
 		}
 
