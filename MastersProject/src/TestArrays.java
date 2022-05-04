@@ -11,9 +11,15 @@ class TestArrays {
 		
 		
 		TestLibrary testLibrary = new TestLibrary();
-		testLibrary.setup("abba","m=xy");
+		testLibrary.setup("abab","m=xy");
+		
+		TestLibrary tl = new TestLibrary();
+		tl.setup("abab","m=zx");
 		
 		ArrayList<ArrayList<int []>> firstTbl = testLibrary.getTable();
+		ArrayList<String> firstCols = testLibrary.getCols();
+	
+		
 		System.out.println("OGtable");
 		for(ArrayList <int []> b : firstTbl) {
 			int count = 0;
@@ -24,10 +30,18 @@ class TestArrays {
 			System.out.println(" ");
 		}
 		
-		testLibrary.addRegularConstraint("x", ".*b");
+		ArrayList<ArrayList<int []>> otherTbl = tl.getTable();
+		ArrayList<String> otherCols = tl.getCols();
+		
+		testLibrary.semijoin(firstTbl, firstCols, otherTbl, otherCols);
+		
+		
+		
+		
+		
 		
 		ArrayList<ArrayList<int []>> secondTbl = testLibrary.getTable();
-		System.out.println("New");
+		System.out.println("New table");
 		for(ArrayList <int []> b : secondTbl) {
 			int count = 0;
 			for( int [] c : b) {
@@ -36,6 +50,8 @@ class TestArrays {
 			}
 			System.out.println(" ");
 		}
+		
+		
 		
 		/*
 		ArrayList<ArrayList<int []>> mytbl = new ArrayList<>();

@@ -389,8 +389,19 @@ public class TestLibrary {
 			return subwordList;
 		}
 		
-	public void stringEqualityTesting() {
-			
+	public boolean stringEqualityTesting(int[] strOne, int[] strTwo) {
+			int a = strOne[0];
+			int b = strOne[1];
+			int c = strTwo[0];
+			int d = strTwo[1];
+			boolean strEqual = false;
+			if(b-a == d-c) {
+				int lcp = lookUpLCP(LCPARRAY, INVERSESUFFIXARRAY, a, c);
+				if(lcp >= b-a) {
+					strEqual = true;
+				}
+			}
+			return strEqual;
 		}
 		
 	public void deDuplicate(ArrayList<ArrayList<int []>> tbl) {
@@ -425,6 +436,131 @@ public class TestLibrary {
 			TABLE=newTable;
 		}
 
+	public void projection(ArrayList<String> newCols) {
+		ArrayList<ArrayList<int []>> oldTable = TABLE;
+		ArrayList<ArrayList<int []>> newTable = new ArrayList<ArrayList<int []>>();
+		ArrayList<int []> newrec = new ArrayList<>();
+		ArrayList<String> oldCols = COLUMNS;
+		
+		ArrayList<Integer> colPosToKeep = new ArrayList<>();
+		for(int i=0; i<oldCols.size(); i++) {
+			for(String s : newCols) {
+				if(oldCols.get(i).equals(s)) {
+					colPosToKeep.add(i);
+				}
+			}
+		}
+		
+		for(ArrayList<int []> record : oldTable) {
+			for(int a : colPosToKeep) {
+				newrec.add(record.get(a));
+			}
+			newTable.add(consolidateSingleRecords(newrec));
+			newrec.clear();
+		}
+		
+		TABLE = newTable;
+		
+	}
+
+	public ArrayList<ArrayList<int []>> join(ArrayList<ArrayList<int []>> tableOne, ArrayList<String> colsOne, ArrayList<ArrayList<int []>> tableTwo, ArrayList<String> colsTwo) {
+		ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
+		ArrayList<Integer> colIntMatch = new ArrayList<>();
+		ArrayList<String> fullColList = new ArrayList<>();
+		fullColList.addAll(colsOne);
+		ArrayList<Integer> colsFromTblTwo = new ArrayList<>();
+		int count = 0;
+		
+		for(String s : colsTwo) {
+			boolean found = false;
+			for(String t : colsOne) {
+				if(s.equals(t)) {
+					found = true;
+				}
+			}
+			if(!found) {
+				colsFromTblTwo.add(count);
+				fullColList.add(s);
+			}
+			count++;
+		}
+		for(int i=0; i<colsOne.size(); i++) {
+			for(int j=0; j<colsTwo.size(); j++) {
+				if(colsOne.get(i).equals(colsTwo.get(j))) {
+					colIntMatch.add(i);
+					colIntMatch.add(j);
+				}
+			}
+		}
+		ArrayList<int[]> record = new ArrayList<>();
+		
+		for(ArrayList<int[]> a : tableOne) {
+			for(ArrayList<int[]> b : tableTwo) {
+				boolean accepted = true;
+				for(int k=0; k<colIntMatch.size(); k=k+2) {
+					if(accepted) {
+						int[] one = a.get(colIntMatch.get(k));
+						int[] two = b.get(colIntMatch.get(k+1));
+						if(!( (one[0]==two[0]) && (one[1]==two[1]) )){
+							accepted=false;
+						}
+					}
+				}
+				if(accepted) {
+					record.addAll(a);
+					for(int x : colsFromTblTwo) {
+						record.add(b.get(x));
+					}
+					newTable.add(consolidateSingleRecords(record));
+					record.clear();
+				}
+				
+				
+			}
+		}
+		TABLE=newTable;
+		COLUMNS = fullColList;
+		
+		
+		return newTable;
+	}
+
+	public ArrayList<ArrayList<int []>> semijoin(ArrayList<ArrayList<int []>> tableOne, ArrayList<String> colsOne, ArrayList<ArrayList<int []>> tableTwo, ArrayList<String> colsTwo) {
+		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
+		ArrayList<Integer> colIntMatch = new ArrayList<>();
+		
+		for(int i=0; i<colsOne.size(); i++) {
+			for(int j=0; j<colsTwo.size(); j++) {
+				if(colsOne.get(i).equals(colsTwo.get(j))) {
+					colIntMatch.add(i);
+					colIntMatch.add(j);
+				}
+			}
+		}
+		
+		for(ArrayList<int[]> a : tableOne) {
+			for(ArrayList<int[]> b : tableTwo) {
+				boolean accepted = true;
+				for(int k=0; k<colIntMatch.size(); k=k+2) {
+					if(accepted) {
+						int[] one = a.get(colIntMatch.get(k));
+						int[] two = b.get(colIntMatch.get(k+1));
+						if(!( (one[0]==two[0]) && (one[1]==two[1]) )){
+							accepted=false;
+						}
+					}
+				}
+				if(accepted) {
+					newTbl.add(a);
+				}
+			}
+		}
+		
+		TABLE = newTbl;
+		COLUMNS = colsOne;
+		return newTbl;
+	}
+	
 	public ArrayList<Integer> getSuffixArray(){
 			return SUFFIXARRAY;
 		}
@@ -437,9 +573,25 @@ public class TestLibrary {
 	public ArrayList<ArrayList<int []>> getTable(){
 			return TABLE;
 		}
+	public ArrayList<String> getCols(){
+		return COLUMNS;
+	}
 	public void setTable(ArrayList<ArrayList<int []>> tbl){
 			TABLE=tbl;
 		}
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
