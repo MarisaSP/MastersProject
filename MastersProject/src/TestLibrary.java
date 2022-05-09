@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TestLibrary {
@@ -14,20 +15,90 @@ public class TestLibrary {
 	ArrayList<Integer> INVERSESUFFIXARRAY;
 	ArrayList<int []> SUBWORDLIST;
 	
+	
+	public void inputStr(String inputString) {
+		STOREDWORD = inputString;
+		STOREDWORDLENGTH = inputString.length();
+		SUFFIXARRAY = SuffixArray();
+		LCPARRAY = generateLCPArray();
+		INVERSESUFFIXARRAY = generateInverseSuffixArray();
+	}
+	
 
 	public void setup(String thisWord, String eqn) {
 		STOREDWORD=thisWord;
 		STOREDWORDLENGTH = thisWord.length();
+		handleEquation(eqn);
 		
 		SUFFIXARRAY = SuffixArray();
 		LCPARRAY = generateLCPArray();
 		INVERSESUFFIXARRAY = generateInverseSuffixArray();
 		
-		int cols = eqnSort(eqn);
+		//int cols = eqnSort(eqn);
 		
-		TABLE=makeTbl(0, STOREDWORDLENGTH, cols);
+		//TABLE=makeTbl(0, STOREDWORDLENGTH, cols);
 		
 		
+	}
+	
+	
+	
+	private void handleEquation(String equation) {
+		ArrayList<ArrayList<ArrayList<int []>>> listOfTables = new ArrayList<>();
+		ArrayList<ArrayList<String>> listOfCols = new ArrayList<>();
+		ArrayList<String> regConstr = new ArrayList<>();
+		ArrayList<String> colBuilder = new ArrayList<>();
+		ArrayList<String> tblBuilder = new ArrayList<>();
+		String[] minusStart = equation.split(":=");
+		String maineqn = minusStart[1];
+		String[] splitTwo = maineqn.split("<-");
+		String colsToProject = splitTwo[0];
+		if(splitTwo.length==2) {
+			String conditions = splitTwo[1];
+			conditions=conditions.substring(1, conditions.length()-1);
+			String[] listOfConditions = conditions.split("\\)\\(");
+			for(int i=0; i<listOfConditions.length; i++) {
+				if(listOfConditions[i].contains(":")) {
+					regConstr.add(listOfConditions[i]);
+				}
+				else if(listOfConditions[i].contains("S")) {
+					tblBuilder.add(listOfConditions[i]);
+				}
+				else if(listOfConditions[i].contains("=")) {
+					colBuilder.add(listOfConditions[i]);
+				}
+				
+			}
+			for(String s : tblBuilder) {
+				ArrayList<String> columns = new ArrayList<>();
+				String [] totalColsSplit = s.split("=");
+				String totalCols = totalColsSplit[1];
+				for(int i=0; i<totalCols.length();i++) {
+					columns.add(totalCols.substring(i, i+1));
+				}
+				ArrayList<ArrayList<int []>> myTbl = new ArrayList<>();
+				myTbl = makeTbl(0, STOREDWORDLENGTH, totalCols.length(), columns, regConstr);
+				listOfTables.add(consolidateTables(myTbl));
+				listOfCols.add(columns);
+				System.out.println(listOfCols);
+				for(ArrayList <int []> b : myTbl) {
+					int count = 0;
+					for( int [] c : b) {
+						System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+						count++;
+					}
+					System.out.println(" ");
+				}
+			}
+			
+			
+			
+		
+			
+			
+			
+			
+		}
 	}
 	
 	private int eqnSort(String fullStr) {
@@ -76,58 +147,134 @@ public class TestLibrary {
 		TABLE = newTable;
 	}
 	
-	private ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols) {
+	private ArrayList<ArrayList<int []>> makeWholeTbl(int i, int j, int cols) {
+		ArrayList<ArrayList<int []>> allRecords = new ArrayList<ArrayList<int []>>();
+		ArrayList<int []> singleRecord = new ArrayList<int []>();
+		int entry[]=new int[2];
+		
+		//If string is empty, each column is set to the empty word
+		if(i==j) {
+			entry[0]=i;
+			entry[1]=i;
+			for(int m=0; m<cols; m++) {
+				singleRecord.add(consolidateEntry(entry));
+			}
+		allRecords.add(consolidateSingleRecords(singleRecord));
+		
+		//If only one column, the column contains the whole string
+		}else if (cols==1){
+			entry[0]=i;
+			entry[1]=j;
+			singleRecord.add(consolidateEntry(entry));
+			allRecords.add(consolidateSingleRecords(singleRecord));
+			
+			
+		}else {
+			entry[0]=i;
+			entry[1]=j;
+			singleRecord.add(consolidateEntry(entry));
+			for(int x=1; x<cols;x++) {
+				entry[0]=j;
+				entry[1]=j;
+				singleRecord.add(consolidateEntry(entry));
+			}
+			allRecords.add(consolidateSingleRecords(singleRecord));
+			singleRecord.clear();
+			
+			for(int m=1; m<=(j-i); m++) {
+				ArrayList<ArrayList <int[]>> theseRecords = makeWholeTbl(j-m, j, cols-1);
+				for(ArrayList <int []> b : theseRecords) {
+					entry[0]=i;
+					entry[1]=j-m;
+					singleRecord.add(consolidateEntry(entry));
+					for( int [] c : b) {
+						singleRecord.add(consolidateEntry(c));
+						
+					}
+					allRecords.add(consolidateSingleRecords(singleRecord));
+					singleRecord.clear();
+				}
+			}
+		}
+		
+		
+		
+		
+		return allRecords;
+	}
+	
+	private ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols, ArrayList<String> allCols, ArrayList<String> regConstr) {
 			ArrayList<ArrayList<int []>> allRecords = new ArrayList<ArrayList<int []>>();
 			ArrayList<int []> singleRecord = new ArrayList<int []>();
 			int entry[]=new int[2];
 			
-			//If string is empty, each column is set to the empty word
-			if(i==j) {
-				entry[0]=i;
-				entry[1]=i;
-				for(int m=0; m<cols; m++) {
-					singleRecord.add(consolidateEntry(entry));
-				}
-			allRecords.add(consolidateSingleRecords(singleRecord));
+			int thisColPos = allCols.size()-cols;
+			String thisCol = allCols.get(thisColPos);
 			
-			//If only one column, the column contains the whole string
-			}else if (cols==1){
-				entry[0]=i;
-				entry[1]=j;
-				singleRecord.add(consolidateEntry(entry));
-				allRecords.add(consolidateSingleRecords(singleRecord));
-				
-				
-			}else {
-				entry[0]=i;
-				entry[1]=j;
-				singleRecord.add(consolidateEntry(entry));
-				for(int x=1; x<cols;x++) {
-					entry[0]=j;
-					entry[1]=j;
-					singleRecord.add(consolidateEntry(entry));
-				}
-				allRecords.add(consolidateSingleRecords(singleRecord));
-				singleRecord.clear();
-				
-				for(int m=1; m<=(j-i); m++) {
-					ArrayList<ArrayList <int[]>> theseRecords = makeTbl(j-m, j, cols-1);
-					for(ArrayList <int []> b : theseRecords) {
-						entry[0]=i;
-						entry[1]=j-m;
-						singleRecord.add(consolidateEntry(entry));
-						for( int [] c : b) {
-							singleRecord.add(consolidateEntry(c));
-							
-						}
-						allRecords.add(consolidateSingleRecords(singleRecord));
-						singleRecord.clear();
+			//If string is empty, each column is set to the empty word
+			if (cols==1){
+				boolean fits = true;
+				String substring = STOREDWORD.substring(i,j);
+				for(String s : regConstr) {
+					String[] decomp = s.split(":");
+					String var = decomp[0];
+					String regex = decomp[1];
+					if(var.equals(thisCol)) {
+						 Pattern pattern = Pattern.compile(regex);
+						 Matcher matcher = pattern.matcher(substring);
+						 boolean matchFound = matcher.find();
+						 if(!matchFound) {
+							 fits=false;
+						 }
 					}
 				}
+				if(fits) {
+					entry[0]=i;
+					entry[1]=j;
+					singleRecord.add(consolidateEntry(entry));
+					allRecords.add(consolidateSingleRecords(singleRecord));
+					singleRecord.clear();
+				}
+				
+			}else {
+				for(int m=j; m>=i; m--) {
+					boolean fits = true;
+					String substring = STOREDWORD.substring(i,m);
+					for(String s : regConstr) {
+						String[] decomp = s.split(":");
+						String var = decomp[0];
+						String regex = decomp[1];
+						if(var.equals(thisCol)) {
+							 Pattern pattern = Pattern.compile(regex);
+							 Matcher matcher = pattern.matcher(substring);
+							 boolean matchFound = matcher.find();
+							 if(!matchFound) {
+								 fits=false;
+							 }
+						}
+					}
+					if(fits) {
+						ArrayList<ArrayList<int []>> newTbl = makeTbl(m, j, cols-1, allCols, regConstr);
+						for(ArrayList<int []> a : newTbl) {
+							int arraySize = a.size();
+							if(arraySize==cols-1) {
+								entry[0]=i;
+								entry[1]=m;
+								singleRecord.add(consolidateEntry(entry));
+								for(int[] b : a) {
+									singleRecord.add(consolidateEntry(b));
+								}
+								allRecords.add(consolidateSingleRecords(singleRecord));
+								singleRecord.clear();
+							}
+						}
+						
+						
+					}
+					
+				}
+				
 			}
-			
-			
-			
 			
 			return allRecords;
 		}
@@ -146,8 +293,16 @@ public class TestLibrary {
 				singleRecOut.add(consolidateEntry(c));
 			}
 			return singleRecOut;
-		}
+	}
 		
+	private ArrayList<ArrayList<int []>> consolidateTables(ArrayList<ArrayList<int []>> tbl) {
+		ArrayList<ArrayList<int []>> tableOut = new ArrayList<>();
+		for(ArrayList<int []> c : tbl) {
+			tableOut.add(consolidateSingleRecords(c));
+		}
+		return tableOut;
+	}
+	
 	private ArrayList<Integer> SuffixArray (){
 			
 			String word = STOREDWORD;
@@ -250,6 +405,7 @@ public class TestLibrary {
 			return subBound;
 		}
 		
+	
 	public void eliminateRepititionsInTbl() {
 			ArrayList<Integer> inverseSuffixArray = INVERSESUFFIXARRAY;
 			ArrayList<Integer> lcpArray = LCPARRAY;
@@ -345,7 +501,7 @@ public class TestLibrary {
 			return lowestPos;
 		}
 			
-	public ArrayList<int []> enumerateAllSubwords() {
+	public ArrayList<String> enumerateAllSubwords() {
 			ArrayList<int []> subwordList = new ArrayList<int[]>();
 			int [] subword = new int[2];
 			int count = 0;
@@ -384,9 +540,14 @@ public class TestLibrary {
 				subwordList.add(consolidateEntry(subword));
 				countdown=countdown-1;
 			}
+			String subwords;
+			ArrayList<String> sbwords = new ArrayList<>();
+			for(int[] a : subwordList) {
+				subwords=STOREDWORD.substring(a[0], a[1]);
+				sbwords.add(subwords);
+			}
 			
-			
-			return subwordList;
+			return sbwords;
 		}
 		
 	public boolean stringEqualityTesting(int[] strOne, int[] strTwo) {
@@ -561,6 +722,7 @@ public class TestLibrary {
 		return newTbl;
 	}
 	
+	
 	public ArrayList<Integer> getSuffixArray(){
 			return SUFFIXARRAY;
 		}
@@ -580,6 +742,7 @@ public class TestLibrary {
 			TABLE=tbl;
 		}
 
+	
 
 }
 

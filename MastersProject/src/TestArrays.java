@@ -2,6 +2,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 class TestArrays {
 
@@ -11,9 +14,21 @@ class TestArrays {
 		
 		
 		TestLibrary testLibrary = new TestLibrary();
-		testLibrary.setup("abab","m=xy");
+		//testLibrary.inputStr("marisaswordsareverylongandcomplicated");
+		//System.out.println(testLibrary.enumerateAllSubwords());
+		testLibrary.setup("aba","m:=Ans(x)<-(S=xyz)(y:[b])");
 		
-		TestLibrary tl = new TestLibrary();
+		
+		Pattern pattern = Pattern.compile("[a|b]");
+		 Matcher matcher = pattern.matcher("ab");
+		 boolean matchFound = matcher.find();
+		 if(matchFound) {
+			 System.out.println("");
+		 }
+		
+		
+		
+		/*TestLibrary tl = new TestLibrary();
 		tl.setup("abab","m=zx");
 		
 		ArrayList<ArrayList<int []>> firstTbl = testLibrary.getTable();
@@ -51,7 +66,7 @@ class TestArrays {
 			System.out.println(" ");
 		}
 		
-		
+		*/
 		
 		/*
 		ArrayList<ArrayList<int []>> mytbl = new ArrayList<>();
