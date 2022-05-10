@@ -28,11 +28,13 @@ public class TestLibrary {
 	public void setup(String thisWord, String eqn) {
 		STOREDWORD=thisWord;
 		STOREDWORDLENGTH = thisWord.length();
-		handleEquation(eqn);
-		
 		SUFFIXARRAY = SuffixArray();
 		LCPARRAY = generateLCPArray();
 		INVERSESUFFIXARRAY = generateInverseSuffixArray();
+		
+		
+		handleEquation(eqn);
+		
 		
 		//int cols = eqnSort(eqn);
 		
@@ -78,9 +80,7 @@ public class TestLibrary {
 				}
 				ArrayList<ArrayList<int []>> myTbl = new ArrayList<>();
 				myTbl = makeTbl(0, STOREDWORDLENGTH, totalCols.length(), columns, regConstr);
-				listOfTables.add(consolidateTables(myTbl));
-				listOfCols.add(columns);
-				System.out.println(listOfCols);
+				
 				for(ArrayList <int []> b : myTbl) {
 					int count = 0;
 					for( int [] c : b) {
@@ -89,6 +89,40 @@ public class TestLibrary {
 					}
 					System.out.println(" ");
 				}
+				
+				myTbl=eliminateRepititionsInTbl(myTbl);
+				System.out.println("Eliminate");
+				for(ArrayList <int []> b : myTbl) {
+					int count = 0;
+					for( int [] c : b) {
+						System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+						count++;
+					}
+					System.out.println(" ");
+				}
+				myTbl=duplicateCols(myTbl, columns);
+				System.out.println("Col checking");
+				for(ArrayList <int []> b : myTbl) {
+					int count = 0;
+					for( int [] c : b) {
+						System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+						count++;
+					}
+					System.out.println(" ");
+				}
+				
+				listOfTables.add(consolidateTables(myTbl));
+				listOfCols.add(columns);
+				System.out.println(listOfCols);
+				
+				
+			}
+			
+			
+			
+			ArrayList<ArrayList<int []>> joinTable = listOfTables.get(0);
+			for(int a=1; a<listOfTables.size(); a++) {
+				
 			}
 			
 			
@@ -99,6 +133,64 @@ public class TestLibrary {
 			
 			
 		}
+	}
+	
+	private ArrayList<ArrayList<int []>> colConstraints(ArrayList<ArrayList<int []>> table, ArrayList<String> colms){
+		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
+		
+		
+		
+		return newTbl;
+	}
+	
+	private ArrayList<ArrayList<int []>> duplicateCols(ArrayList<ArrayList<int []>> table, ArrayList<String> colms){
+		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
+		ArrayList<Integer> freshCols = new ArrayList<>();
+		
+		
+		ArrayList<int []> colsToCheck = new ArrayList<>();
+		
+		
+		int count=0;
+		for(String s : colms) {
+			int[] entry = new int[2];
+			boolean found = false;
+			for(int a=0; a<freshCols.size(); a++) {
+				if(colms.get(freshCols.get(a)).equals(colms.get(count))){
+					found=true;
+					entry[0]=freshCols.get(a);
+					entry[1]=count;
+					System.out.println(entry[0]+" "+entry[1]);
+					colsToCheck.add(consolidateEntry(entry));
+				}
+			}
+			if(!found) {
+				freshCols.add(count);
+			}
+			
+			count++;
+		}
+		
+		for(ArrayList<int []> a : table) {
+			boolean accepted = true;
+			for(int[] entr : colsToCheck) {
+				int posOne = entr[0];
+				int posTwo = entr[1];
+				int[] entryOne = a.get(posOne);
+				int[] entryTwo = a.get(posTwo);
+				if(!((entryOne[0]==entryTwo[0])&&(entryOne[1]==entryTwo[1]))) {
+					accepted=false;
+				}
+				
+			}
+			if(accepted) {
+				newTbl.add(a);
+			}
+		}
+		
+		
+		
+		return newTbl;
 	}
 	
 	private int eqnSort(String fullStr) {
@@ -378,7 +470,7 @@ public class TestLibrary {
 	private ArrayList<Integer> generateInverseSuffixArray (){
 			ArrayList<Integer> suffixArray = SUFFIXARRAY;
 			ArrayList<Integer> inverse = new ArrayList<Integer>();
-			
+	
 			int count=0;
 			while(count!=suffixArray.size()) {
 				
@@ -406,10 +498,12 @@ public class TestLibrary {
 		}
 		
 	
-	public void eliminateRepititionsInTbl() {
+	public ArrayList<ArrayList<int []>> eliminateRepititionsInTbl(ArrayList<ArrayList<int []>> tableToOptimise) {
 			ArrayList<Integer> inverseSuffixArray = INVERSESUFFIXARRAY;
+			System.out.println(	INVERSESUFFIXARRAY.size());
 			ArrayList<Integer> lcpArray = LCPARRAY;
-			ArrayList<ArrayList<int []>> tableToOptimise = TABLE;
+			System.out.println(lcpArray.size());
+			//ArrayList<ArrayList<int []>> tableToOptimise = TABLE;
 			ArrayList<int []> originals = new ArrayList<int []>();
 			ArrayList<ArrayList<int []>> optimisedTable = new ArrayList<ArrayList<int []>>();
 			int[] indexes = new int[2];
@@ -454,7 +548,8 @@ public class TestLibrary {
 				freshRecords.clear();
 			
 			}
-			TABLE = optimisedTable;
+			//TABLE = optimisedTable;
+			return optimisedTable;
 		}
 		
 	private int lookUpLCP(ArrayList<Integer> LCPArray, ArrayList<Integer> inverseSuffixArray, int one, int two) {

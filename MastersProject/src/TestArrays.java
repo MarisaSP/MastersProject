@@ -16,7 +16,8 @@ class TestArrays {
 		TestLibrary testLibrary = new TestLibrary();
 		//testLibrary.inputStr("marisaswordsareverylongandcomplicated");
 		//System.out.println(testLibrary.enumerateAllSubwords());
-		testLibrary.setup("aba","m:=Ans(x)<-(S=xyz)(y:[b])");
+		//testLibrary.setup("aba","m:=Ans(x)<-(S=xyz)(S=wz)(y:[b])");
+		testLibrary.setup("aba","m:=Ans(x)<-(S=xyx)");
 		
 		
 		Pattern pattern = Pattern.compile("[a|b]");
