@@ -14,10 +14,37 @@ class TestArrays {
 		
 		
 		TestLibrary testLibrary = new TestLibrary();
-		//testLibrary.inputStr("marisaswordsareverylongandcomplicated");
+		//testLibrary.inputStr("aba");
 		//System.out.println(testLibrary.enumerateAllSubwords());
 		//testLibrary.setup("aba","m:=Ans(x)<-(S=xyz)(S=wz)(y:[b])");
-		testLibrary.setup("aba","m:=Ans(x)<-(S=xyx)");
+		testLibrary.setup("ababab","m:=Ans(x)<-(S=xy)(S=wxz)(w!=z)(y:[b])");
+		
+		
+		
+		
+		
+		/* ArrayList<String> colOne = new ArrayList<>();
+		ArrayList<String> colTwo =  new ArrayList<>();
+		ArrayList<String> regConstr = new ArrayList<>();
+		
+		colOne.add("x");
+		colOne.add("y");
+		colTwo.add("w");
+		colTwo.add("x");
+		ArrayList<ArrayList<int[]>> t1 =  testLibrary.makeTbl(0, 3, 2, colOne, regConstr);
+		ArrayList<ArrayList<int[]>> t2 =  testLibrary.makeTbl(0, 3, 2, colTwo, regConstr);
+		
+		ArrayList<ArrayList<int[]>> myTbl = testLibrary.join(t1, colOne, t2, colTwo);
+		
+		System.out.println("Join");
+		for(ArrayList <int []> b : myTbl) {
+			int count = 0;
+			for( int [] c : b) {
+				System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+				count++;
+			}
+			System.out.println(" ");
+		}
 		
 		
 		Pattern pattern = Pattern.compile("[a|b]");
@@ -26,8 +53,8 @@ class TestArrays {
 		 if(matchFound) {
 			 System.out.println("");
 		 }
-		
-		
+		*/
+	
 		
 		/*TestLibrary tl = new TestLibrary();
 		tl.setup("abab","m=zx");

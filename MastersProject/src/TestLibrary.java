@@ -81,27 +81,31 @@ public class TestLibrary {
 				ArrayList<ArrayList<int []>> myTbl = new ArrayList<>();
 				myTbl = makeTbl(0, STOREDWORDLENGTH, totalCols.length(), columns, regConstr);
 				
-				for(ArrayList <int []> b : myTbl) {
-					int count = 0;
-					for( int [] c : b) {
-						System.out.print("["+c[0]+","+c[1] + ")"+ " ");
-						count++;
-					}
-					System.out.println(" ");
-				}
 				
 				myTbl=eliminateRepititionsInTbl(myTbl);
-				System.out.println("Eliminate");
-				for(ArrayList <int []> b : myTbl) {
-					int count = 0;
-					for( int [] c : b) {
-						System.out.print("["+c[0]+","+c[1] + ")"+ " ");
-						count++;
-					}
-					System.out.println(" ");
-				}
+				
 				myTbl=duplicateCols(myTbl, columns);
-				System.out.println("Col checking");
+				
+				ArrayList<Integer> freshCols = new ArrayList<>();
+				for(int count=0; count<columns.size();count++) {
+					boolean found = false;
+					for(int a=0; a<freshCols.size(); a++) {
+						if(columns.get(freshCols.get(a)).equals(columns.get(count))){
+							found=true;
+						}
+					}
+					if(!found) {
+						freshCols.add(count);
+					}
+				}
+				
+				myTbl = removeDuplicColsFromTbl(myTbl, freshCols);
+				ArrayList<String> cols = new ArrayList<>();
+				for(int a : freshCols) {
+					cols.add(columns.get(a));
+				}
+			
+			/*	System.out.println("Final Stored");
 				for(ArrayList <int []> b : myTbl) {
 					int count = 0;
 					for( int [] c : b) {
@@ -109,37 +113,122 @@ public class TestLibrary {
 						count++;
 					}
 					System.out.println(" ");
-				}
+				}*/
+			
 				
 				listOfTables.add(consolidateTables(myTbl));
 				listOfCols.add(columns);
-				System.out.println(listOfCols);
-				
-				
+
 			}
-			
-			
 			
 			ArrayList<ArrayList<int []>> joinTable = listOfTables.get(0);
+			ArrayList<String> joinCols = listOfCols.get(0);
 			for(int a=1; a<listOfTables.size(); a++) {
-				
+				ArrayList<ArrayList<int []>> table = listOfTables.get(a);
+				ArrayList<String> col = listOfCols.get(a);
+				joinTable = join(joinTable, joinCols, table, col);
+				joinCols = colJoin(joinCols, listOfCols.get(a));
 			}
 			
-			
-			
-		
-			
-			
-			
+			System.out.println("Join Tables");
+			for(ArrayList <int []> b : joinTable) {
+				for( int [] c : b) {
+					System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+				}
+				System.out.println(" ");
+			}
+			System.out.println(joinCols);
+			ArrayList<ArrayList<int[]>> myTbl = colConstraints(joinTable, joinCols, colBuilder);
+			for(ArrayList <int []> b : myTbl) {
+				int count = 0;
+				for( int [] c : b) {
+					System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+					count++;
+				}
+				System.out.println(" ");
+			}
 			
 		}
 	}
 	
-	private ArrayList<ArrayList<int []>> colConstraints(ArrayList<ArrayList<int []>> table, ArrayList<String> colms){
+	private ArrayList<ArrayList<int []>> colConstraints(ArrayList<ArrayList<int []>> table, ArrayList<String> colms, ArrayList<String> colConstr){
 		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
+		System.out.println(colConstr);
+		for(String s : colConstr) {
+			if(s.contains("!")) {
+				
+			}
+			else if(s.contains("=")) {
+				
+			}
+		}
+		
+		for(ArrayList<int[]> a : table) {
+			boolean accepted = true;
+			
+			for(String s : colConstr) {
+				String[] split;
+				boolean equal=true;
+				if(s.contains("!")) {
+					split = s.split("!=");
+					equal = false;
+				}else {
+					split = s.split("=");
+					equal = true;
+				}
+				String first = split[0];
+				String conditions = split[1];
+				String strToCheckFor = "";
+				int firstPos=-1;
+				for(int i=0; i<colms.size();i++) {
+					if(colms.get(i).equals(first)) {
+						firstPos=i;
+					}
+				}
+				for(int j=0; j<conditions.length();j++) {
+					String m = conditions.substring(j, j+1);
+					int colNo=-1;
+					for(int i=0; i<colms.size();i++) {
+						if(colms.get(i).equals(m)) {
+							colNo = i;
+						}
+					}
+					int[] intToCheck = a.get(colNo);
+					strToCheckFor = strToCheckFor + STOREDWORD.substring(intToCheck[0], intToCheck[1]);
+					
+				}
+				int[] wordFromFirst = a.get(firstPos);
+				String word = STOREDWORD.substring(wordFromFirst[0], wordFromFirst[1]);
+				if(equal) {
+					if(!(word.equals(strToCheckFor))) {
+						accepted=false;
+					}
+				}else {
+					if(word.equals(strToCheckFor)) {
+						accepted=false;
+					}
+				}
+			}
+			if(accepted) {
+				newTbl.add(consolidateSingleRecords(a));
+			}
+		}
 		
 		
-		
+		return newTbl;
+	}
+	
+	
+	private ArrayList<ArrayList<int []>>  removeDuplicColsFromTbl(ArrayList<ArrayList<int []>> givenTbl, ArrayList<Integer> cols){
+		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
+		ArrayList<int []> newRecord = new ArrayList<>();
+		for(ArrayList<int[]> a : givenTbl) {
+			for(int b : cols) {
+				newRecord.add(a.get(b));
+			}
+			newTbl.add(consolidateSingleRecords(newRecord));
+			newRecord.clear();
+		}
 		return newTbl;
 	}
 	
@@ -160,7 +249,6 @@ public class TestLibrary {
 					found=true;
 					entry[0]=freshCols.get(a);
 					entry[1]=count;
-					System.out.println(entry[0]+" "+entry[1]);
 					colsToCheck.add(consolidateEntry(entry));
 				}
 			}
@@ -170,7 +258,6 @@ public class TestLibrary {
 			
 			count++;
 		}
-		
 		for(ArrayList<int []> a : table) {
 			boolean accepted = true;
 			for(int[] entr : colsToCheck) {
@@ -295,7 +382,7 @@ public class TestLibrary {
 		return allRecords;
 	}
 	
-	private ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols, ArrayList<String> allCols, ArrayList<String> regConstr) {
+	public ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols, ArrayList<String> allCols, ArrayList<String> regConstr) {
 			ArrayList<ArrayList<int []>> allRecords = new ArrayList<ArrayList<int []>>();
 			ArrayList<int []> singleRecord = new ArrayList<int []>();
 			int entry[]=new int[2];
@@ -500,9 +587,7 @@ public class TestLibrary {
 	
 	public ArrayList<ArrayList<int []>> eliminateRepititionsInTbl(ArrayList<ArrayList<int []>> tableToOptimise) {
 			ArrayList<Integer> inverseSuffixArray = INVERSESUFFIXARRAY;
-			System.out.println(	INVERSESUFFIXARRAY.size());
 			ArrayList<Integer> lcpArray = LCPARRAY;
-			System.out.println(lcpArray.size());
 			//ArrayList<ArrayList<int []>> tableToOptimise = TABLE;
 			ArrayList<int []> originals = new ArrayList<int []>();
 			ArrayList<ArrayList<int []>> optimisedTable = new ArrayList<ArrayList<int []>>();
@@ -718,15 +803,36 @@ public class TestLibrary {
 		TABLE = newTable;
 		
 	}
+	
+	private ArrayList<String> colJoin(ArrayList<String> colsOne, ArrayList<String> colsTwo){
+		ArrayList<String> fullColList = new ArrayList<>();
+		fullColList.addAll(colsOne);
+		int count = 0;
+		
+		for(String s : colsTwo) {
+			boolean found = false;
+			for(String t : colsOne) {
+				if(s.equals(t)) {
+					found = true;
+				}
+			}
+			if(!found) {
+				fullColList.add(s);
+			}
+			count++;
+		}
+		
+		return fullColList;
+	}
 
 	public ArrayList<ArrayList<int []>> join(ArrayList<ArrayList<int []>> tableOne, ArrayList<String> colsOne, ArrayList<ArrayList<int []>> tableTwo, ArrayList<String> colsTwo) {
+		
 		ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
 		ArrayList<Integer> colIntMatch = new ArrayList<>();
 		ArrayList<String> fullColList = new ArrayList<>();
 		fullColList.addAll(colsOne);
 		ArrayList<Integer> colsFromTblTwo = new ArrayList<>();
 		int count = 0;
-		
 		for(String s : colsTwo) {
 			boolean found = false;
 			for(String t : colsOne) {
@@ -774,9 +880,8 @@ public class TestLibrary {
 				
 			}
 		}
-		TABLE=newTable;
-		COLUMNS = fullColList;
-		
+		//TABLE=newTable;
+		//COLUMNS = fullColList;
 		
 		return newTable;
 	}
