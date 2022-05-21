@@ -15,36 +15,31 @@ public class TestLibrary {
 	ArrayList<Integer> INVERSESUFFIXARRAY;
 	ArrayList<int []> SUBWORDLIST;
 	
-	
+	//Handles string alone
 	public void inputStr(String inputString) {
 		STOREDWORD = inputString;
 		STOREDWORDLENGTH = inputString.length();
 		SUFFIXARRAY = SuffixArray();
-		LCPARRAY = generateLCPArray();
 		INVERSESUFFIXARRAY = generateInverseSuffixArray();
+		LCPARRAY = generateLCPArray();
 	}
 	
-
+	//Initializer
 	public void setup(String thisWord, String eqn) {
-		STOREDWORD=thisWord;
-		STOREDWORDLENGTH = thisWord.length();
-		SUFFIXARRAY = SuffixArray();
-		LCPARRAY = generateLCPArray();
-		INVERSESUFFIXARRAY = generateInverseSuffixArray();
+		inputStr(thisWord);
+		try {
+			handleEquation(eqn);
+		}
+		catch(Exception e){
+			System.out.println("Please input a valid equation");
+		}
 		
-		
-		handleEquation(eqn);
-		
-		
-		//int cols = eqnSort(eqn);
-		
-		//TABLE=makeTbl(0, STOREDWORDLENGTH, cols);
 		
 		
 	}
 	
 	
-	
+	//Handles the query, called by setup function
 	private void handleEquation(String equation) {
 		ArrayList<ArrayList<ArrayList<int []>>> listOfTables = new ArrayList<>();
 		ArrayList<ArrayList<String>> listOfCols = new ArrayList<>();
@@ -55,7 +50,6 @@ public class TestLibrary {
 		String maineqn = minusStart[1];
 		String[] splitTwo = maineqn.split("<-");
 		String colsToProject = splitTwo[0];
-		if(splitTwo.length==2) {
 			String conditions = splitTwo[1];
 			conditions=conditions.substring(1, conditions.length()-1);
 			String[] listOfConditions = conditions.split("\\)\\(");
@@ -82,6 +76,7 @@ public class TestLibrary {
 				myTbl = makeTbl(0, STOREDWORDLENGTH, totalCols.length(), columns, regConstr);
 				
 				
+				
 				myTbl=eliminateRepititionsInTbl(myTbl);
 				
 				myTbl=duplicateCols(myTbl, columns);
@@ -105,16 +100,6 @@ public class TestLibrary {
 					cols.add(columns.get(a));
 				}
 			
-			/*	System.out.println("Final Stored");
-				for(ArrayList <int []> b : myTbl) {
-					int count = 0;
-					for( int [] c : b) {
-						System.out.print("["+c[0]+","+c[1] + ")"+ " ");
-						count++;
-					}
-					System.out.println(" ");
-				}*/
-			
 				
 				listOfTables.add(consolidateTables(myTbl));
 				listOfCols.add(columns);
@@ -130,15 +115,18 @@ public class TestLibrary {
 				joinCols = colJoin(joinCols, listOfCols.get(a));
 			}
 			
-			System.out.println("Join Tables");
+			
+			System.out.println("Join Tables Result");
+			System.out.println(joinCols);
 			for(ArrayList <int []> b : joinTable) {
 				for( int [] c : b) {
 					System.out.print("["+c[0]+","+c[1] + ")"+ " ");
 				}
 				System.out.println(" ");
 			}
-			System.out.println(joinCols);
 			ArrayList<ArrayList<int[]>> myTbl = colConstraints(joinTable, joinCols, colBuilder);
+			System.out.println("Apply Column Constraints (Final Table Returned)");
+			System.out.println(joinCols);
 			for(ArrayList <int []> b : myTbl) {
 				int count = 0;
 				for( int [] c : b) {
@@ -148,12 +136,30 @@ public class TestLibrary {
 				System.out.println(" ");
 			}
 			
+		colsToProject=colsToProject.substring(4);
+		colsToProject=colsToProject.substring(0,colsToProject.length()-1);
+		String[] spl = colsToProject.split(",");
+		ArrayList<String> projCols = new ArrayList<>();
+		for(String p : spl) {
+			projCols.add(p);
+		}
+		System.out.println(projCols);
+		ArrayList<ArrayList<int[]>> finalTbl = projection(myTbl, joinCols, projCols);
+		finalTbl = deDuplicate(finalTbl);
+		System.out.println("And finally, Project!");
+		System.out.println(projCols);
+		for(ArrayList <int []> b : finalTbl) {
+			int count = 0;
+			for( int [] c : b) {
+				System.out.print("["+c[0]+","+c[1] + ")"+ " ");
+				count++;
+			}
+			System.out.println(" ");
 		}
 	}
 	
 	private ArrayList<ArrayList<int []>> colConstraints(ArrayList<ArrayList<int []>> table, ArrayList<String> colms, ArrayList<String> colConstr){
 		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
-		System.out.println(colConstr);
 		for(String s : colConstr) {
 			if(s.contains("!")) {
 				
@@ -506,7 +512,7 @@ public class TestLibrary {
 			
 		}
 		
-	private ArrayList<Integer> generateLCPArray() {
+	private ArrayList<Integer> oldGenerateLCPArray() {
 			String word = STOREDWORD;
 			ArrayList<Integer>  suffixArray = SUFFIXARRAY;
 			ArrayList<Integer> LCPArray = new ArrayList<Integer>();
@@ -528,6 +534,138 @@ public class TestLibrary {
 			return LCPArray;
 		
 		}
+	
+	private ArrayList<Integer> generateLCPArray() {
+		ArrayList<Integer> LCPArray = new ArrayList<Integer>();
+		ArrayList<Integer>  suffixArray = SUFFIXARRAY;
+		int[] lcp = new int[suffixArray.size()];
+		ArrayList<Integer>  inverseSuffixArray = INVERSESUFFIXARRAY;
+		String txt = STOREDWORD;
+		int n = suffixArray.size();
+		int k = 0;
+		
+		 for (int i=0; i<n; i++){
+			 if (inverseSuffixArray.get(i) == n-1)
+		        {
+		            k = 0;
+		            continue;
+		        }
+			 int j = suffixArray.get(inverseSuffixArray.get(i)+1);
+			 
+			 boolean match = true;
+			 while ( (i+k<n) && (j+k<n) && match ) {
+				 if(i+k<txt.length() && j+k<txt.length()) {
+					 if(txt.charAt(i+k)==txt.charAt(j+k)){
+						 k++;
+					 }else {
+						 match = false;
+					 }
+				 }else {
+					 match = false;
+				 }
+			 }
+		 
+			 lcp[inverseSuffixArray.get(i)] = k;;
+		 
+		     if (k>0) {
+		         k--;
+		     }
+			 
+			 
+		 }
+			
+		LCPArray.add(null);
+		for(int i : lcp) {
+			LCPArray.add(i);
+		}
+		LCPArray.remove(LCPArray.size()-1);
+		
+		
+		return LCPArray;
+	}
+	
+	private ArrayList<Integer> trialGenerateLCPArray() {
+		String word = STOREDWORD;
+		ArrayList<Integer>  suffixArray = SUFFIXARRAY;
+		ArrayList<Integer>  inverseSuffixArray = INVERSESUFFIXARRAY;
+		ArrayList<String> unsortedLCPArray = new ArrayList<String>();
+		ArrayList<Integer> LCPArray = new ArrayList<Integer>();
+		unsortedLCPArray.add(null);
+		
+		
+		String thisLCP = "";
+		
+		for(int i=word.length()-1; i>=0;i--) {
+			thisLCP = "";
+			//Initial char
+			String thisChar = Character.toString(word.charAt(i));
+			int invSuff = inverseSuffixArray.get(i);
+			
+			//Value prior in suffix array
+			int priorValue = suffixArray.get(invSuff-1);
+			String prior;
+			if(priorValue==word.length()) {
+				prior="";
+			}else {
+				prior = Character.toString(word.charAt(priorValue));
+			}
+			
+			if(thisChar.equals(prior)) {
+				int onePlusThisi=i+1;
+				int onePlusPriorValue = priorValue+1;
+				if(onePlusPriorValue < word.length() && onePlusThisi < word.length()) {
+					String onePlusThisChar = Character.toString(word.charAt(onePlusThisi));
+					String onePlusPrior = Character.toString(word.charAt(onePlusPriorValue));
+					if(onePlusThisChar.equals(onePlusPrior)) {
+						thisLCP="l"+Integer.toString(onePlusThisi);
+					}else {
+						thisLCP="1";
+					}
+					
+					
+					
+				}else {
+					thisLCP="1";
+				}
+		
+			}else {
+				thisLCP="0";
+			}
+			unsortedLCPArray.add(""+thisLCP);
+			//System.out.println("Unsorted Array: "+unsortedLCPArray);
+			
+		}
+		ArrayList<Integer> newLCPArray = new ArrayList<Integer>();
+		System.out.println(unsortedLCPArray);
+		newLCPArray.add(null);
+		for(int j=1; j<unsortedLCPArray.size();j++) {
+			String p = unsortedLCPArray.get(j);
+			if(p.contains("l")) {
+				String strInt = p.substring(1);
+				System.out.println(strInt);
+				int lookUp = word.length()-Integer.parseInt(strInt);
+				System.out.println(lookUp);
+				int total = newLCPArray.get(lookUp);
+				System.out.println(total);
+				newLCPArray.add(total+1);
+				System.out.println();
+			}else {
+				newLCPArray.add(Integer.parseInt(p));
+			}
+		}
+		
+		
+		System.out.println(newLCPArray);
+		for(int m : suffixArray) {
+			LCPArray.add(newLCPArray.get(word.length()-m));
+		}
+		
+		
+		return LCPArray;
+	
+	}
+	
+	
 		
 	private int LCParray(String suffOne, String suffTwo) {
 			
@@ -554,7 +692,7 @@ public class TestLibrary {
 			return lcp.length();
 		}
 		
-	private ArrayList<Integer> generateInverseSuffixArray (){
+	private ArrayList<Integer> oldGenerateInverseSuffixArray (){
 			ArrayList<Integer> suffixArray = SUFFIXARRAY;
 			ArrayList<Integer> inverse = new ArrayList<Integer>();
 	
@@ -571,6 +709,22 @@ public class TestLibrary {
 			}
 			return inverse;
 		}
+	
+	private ArrayList<Integer> generateInverseSuffixArray (){
+		ArrayList<Integer> suffixArray = SUFFIXARRAY;
+		int[] inv = new int[suffixArray.size()];
+		ArrayList<Integer> inverse = new ArrayList<Integer>();
+		for(int i=0; i<suffixArray.size();i++) {
+			inv[suffixArray.get(i)]=i;
+		}
+		
+		for(int j=0; j<inv.length;j++) {
+			inverse.add(inv[j]);
+		}
+		
+		return inverse;
+	}
+	
 		
 	public int noOfSubwordsSetLength(int lengthOfSubword){
 			int subBound = (STOREDWORD.length()+1)-lengthOfSubword;
@@ -745,14 +899,9 @@ public class TestLibrary {
 			return strEqual;
 		}
 		
-	public void deDuplicate(ArrayList<ArrayList<int []>> tbl) {
-			//ArrayList<ArrayList<int []>> oldTable = TABLE;
-			//ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
+	public ArrayList<ArrayList<int []>> deDuplicate(ArrayList<ArrayList<int []>> tbl) {
 			ArrayList<ArrayList<int []>> oldTable = tbl;
 			ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
-			
-			ArrayList<int []> newrecord = new ArrayList<>();
-			int [] newfield = new int[2];
 			
 			for(ArrayList <int []> oldRecord : oldTable) {
 				boolean found = false;
@@ -774,14 +923,12 @@ public class TestLibrary {
 				}
 			
 			}
-			TABLE=newTable;
+			return newTable;
 		}
 
-	public void projection(ArrayList<String> newCols) {
-		ArrayList<ArrayList<int []>> oldTable = TABLE;
+	public ArrayList<ArrayList<int []>> projection(ArrayList<ArrayList<int []>> oldTable, ArrayList<String> oldCols, ArrayList<String> newCols) {
 		ArrayList<ArrayList<int []>> newTable = new ArrayList<ArrayList<int []>>();
 		ArrayList<int []> newrec = new ArrayList<>();
-		ArrayList<String> oldCols = COLUMNS;
 		
 		ArrayList<Integer> colPosToKeep = new ArrayList<>();
 		for(int i=0; i<oldCols.size(); i++) {
@@ -800,7 +947,7 @@ public class TestLibrary {
 			newrec.clear();
 		}
 		
-		TABLE = newTable;
+		return newTable;
 		
 	}
 	
