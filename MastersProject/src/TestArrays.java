@@ -17,8 +17,9 @@ class TestArrays {
 		//testLibrary.inputStr("aba");
 		//System.out.println(testLibrary.enumerateAllSubwords());
 		//testLibrary.setup("aba","m:=Ans(x,y,z)<-(S=xyz)(S=wz)(y:[b])");
-		//testLibrary.inputStr("aaaaaasaa");
-		testLibrary.setup("ababab","m:=Ans(x,y)<-(S=xy)(S=wxz)(w!=z)(y:[b])");
+		testLibrary.inputStr("ababab");
+		System.out.println(testLibrary.noOfSubwordsSetLength(2));
+		//testLibrary.equation("m:=Ans(x,y)<-(S=xy)(S=wxz)(w!=z)(y:[b])");
 		
 		
 		

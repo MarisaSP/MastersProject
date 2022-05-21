@@ -15,31 +15,38 @@ public class TestLibrary {
 	ArrayList<Integer> INVERSESUFFIXARRAY;
 	ArrayList<int []> SUBWORDLIST;
 	
-	//Handles string alone
+	//Creates a suffix array, inverse suffix array and LCP array for the text
 	public void inputStr(String inputString) {
+		try {
 		STOREDWORD = inputString;
 		STOREDWORDLENGTH = inputString.length();
 		SUFFIXARRAY = SuffixArray();
 		INVERSESUFFIXARRAY = generateInverseSuffixArray();
 		LCPARRAY = generateLCPArray();
+		}
+		catch(Exception e) {
+			System.out.println("Please input a valid text");
+		}
 	}
 	
-	//Initializer
-	public void setup(String thisWord, String eqn) {
-		inputStr(thisWord);
+	//Function called by user to input an equation
+	public void equation(String eqn) {
 		try {
 			handleEquation(eqn);
 		}
 		catch(Exception e){
 			System.out.println("Please input a valid equation");
 		}
+		if(STOREDWORDLENGTH==0) {
+			System.out.println("Please input a valid text");
+		}
 		
 		
 		
 	}
 	
 	
-	//Handles the query, called by setup function
+	//Handles the query, called by equation function
 	private void handleEquation(String equation) {
 		ArrayList<ArrayList<ArrayList<int []>>> listOfTables = new ArrayList<>();
 		ArrayList<ArrayList<String>> listOfCols = new ArrayList<>();
@@ -116,25 +123,8 @@ public class TestLibrary {
 			}
 			
 			
-			System.out.println("Join Tables Result");
-			System.out.println(joinCols);
-			for(ArrayList <int []> b : joinTable) {
-				for( int [] c : b) {
-					System.out.print("["+c[0]+","+c[1] + ")"+ " ");
-				}
-				System.out.println(" ");
-			}
 			ArrayList<ArrayList<int[]>> myTbl = colConstraints(joinTable, joinCols, colBuilder);
-			System.out.println("Apply Column Constraints (Final Table Returned)");
-			System.out.println(joinCols);
-			for(ArrayList <int []> b : myTbl) {
-				int count = 0;
-				for( int [] c : b) {
-					System.out.print("["+c[0]+","+c[1] + ")"+ " ");
-					count++;
-				}
-				System.out.println(" ");
-			}
+			
 			
 		colsToProject=colsToProject.substring(4);
 		colsToProject=colsToProject.substring(0,colsToProject.length()-1);
@@ -143,11 +133,10 @@ public class TestLibrary {
 		for(String p : spl) {
 			projCols.add(p);
 		}
-		System.out.println(projCols);
 		ArrayList<ArrayList<int[]>> finalTbl = projection(myTbl, joinCols, projCols);
 		finalTbl = deDuplicate(finalTbl);
-		System.out.println("And finally, Project!");
-		System.out.println(projCols);
+		System.out.println("Resulting Table:");
+		System.out.println("Columns: "+projCols);
 		for(ArrayList <int []> b : finalTbl) {
 			int count = 0;
 			for( int [] c : b) {
@@ -156,8 +145,11 @@ public class TestLibrary {
 			}
 			System.out.println(" ");
 		}
+		TABLE=finalTbl;
+		COLUMNS=projCols;
 	}
 	
+	//Applies column constraints to tables
 	private ArrayList<ArrayList<int []>> colConstraints(ArrayList<ArrayList<int []>> table, ArrayList<String> colms, ArrayList<String> colConstr){
 		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
 		for(String s : colConstr) {
@@ -224,7 +216,7 @@ public class TestLibrary {
 		return newTbl;
 	}
 	
-	
+	//Removes duplicate column records
 	private ArrayList<ArrayList<int []>>  removeDuplicColsFromTbl(ArrayList<ArrayList<int []>> givenTbl, ArrayList<Integer> cols){
 		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
 		ArrayList<int []> newRecord = new ArrayList<>();
@@ -238,6 +230,7 @@ public class TestLibrary {
 		return newTbl;
 	}
 	
+	//Checks if records hold the same values for columns with the same name
 	private ArrayList<ArrayList<int []>> duplicateCols(ArrayList<ArrayList<int []>> table, ArrayList<String> colms){
 		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
 		ArrayList<Integer> freshCols = new ArrayList<>();
@@ -286,6 +279,7 @@ public class TestLibrary {
 		return newTbl;
 	}
 	
+	//Old, redundant method used to split equations entered
 	private int eqnSort(String fullStr) {
 		String[] sections = fullStr.split("=");
 		String mainstring = sections[0];
@@ -301,7 +295,8 @@ public class TestLibrary {
 		return noOfCols;
 	}
 	
-	public void addRegularConstraint(String cols, String regConstr) {
+	//Old, redundant method to handle regular constraints instead of building into table
+	private void addRegularConstraint(String cols, String regConstr) {
 		ArrayList<ArrayList<int []>> oldTable = TABLE;
 		ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
 		ArrayList<Integer> colsToApply = new ArrayList<>();
@@ -332,6 +327,7 @@ public class TestLibrary {
 		TABLE = newTable;
 	}
 	
+	//Old, redundant method used to build table without any constraints. Does not handle duplicate columns
 	private ArrayList<ArrayList<int []>> makeWholeTbl(int i, int j, int cols) {
 		ArrayList<ArrayList<int []>> allRecords = new ArrayList<ArrayList<int []>>();
 		ArrayList<int []> singleRecord = new ArrayList<int []>();
@@ -388,7 +384,8 @@ public class TestLibrary {
 		return allRecords;
 	}
 	
-	public ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols, ArrayList<String> allCols, ArrayList<String> regConstr) {
+	//Builds table with regular constraints
+	private ArrayList<ArrayList<int []>> makeTbl(int i, int j, int cols, ArrayList<String> allCols, ArrayList<String> regConstr) {
 			ArrayList<ArrayList<int []>> allRecords = new ArrayList<ArrayList<int []>>();
 			ArrayList<int []> singleRecord = new ArrayList<int []>();
 			int entry[]=new int[2];
@@ -464,7 +461,7 @@ public class TestLibrary {
 			return allRecords;
 		}
 		
-		
+	//Workaround for Java storing references instead of the actual value in arrays	
 	private int[] consolidateEntry(int[] entryIn) {
 			int entryOut[] = new int[2];
 			entryOut[0] = entryIn[0];
@@ -472,6 +469,7 @@ public class TestLibrary {
 			return entryOut;
 		}
 		
+	//Workaround for Java storing references instead of the actual value in ArrayLists	
 	private ArrayList<int []> consolidateSingleRecords(ArrayList<int []> singleRecIn) {
 			ArrayList singleRecOut = new ArrayList<int []>();
 			for( int [] c : singleRecIn) {
@@ -480,6 +478,7 @@ public class TestLibrary {
 			return singleRecOut;
 	}
 		
+	//Workaround for Java storing references instead of the actual value in ArrayLists	
 	private ArrayList<ArrayList<int []>> consolidateTables(ArrayList<ArrayList<int []>> tbl) {
 		ArrayList<ArrayList<int []>> tableOut = new ArrayList<>();
 		for(ArrayList<int []> c : tbl) {
@@ -488,6 +487,7 @@ public class TestLibrary {
 		return tableOut;
 	}
 	
+	//Creates the suffix array in O(nlogn) time
 	private ArrayList<Integer> SuffixArray (){
 			
 			String word = STOREDWORD;
@@ -511,7 +511,8 @@ public class TestLibrary {
 			return suffixArray;
 			
 		}
-		
+	
+	//Redundant method to generate LCP array that had complexity O(n^2)
 	private ArrayList<Integer> oldGenerateLCPArray() {
 			String word = STOREDWORD;
 			ArrayList<Integer>  suffixArray = SUFFIXARRAY;
@@ -535,6 +536,7 @@ public class TestLibrary {
 		
 		}
 	
+	//Method to generate LCP array in O(nlogn) time, taken from Kasai's algorithm
 	private ArrayList<Integer> generateLCPArray() {
 		ArrayList<Integer> LCPArray = new ArrayList<Integer>();
 		ArrayList<Integer>  suffixArray = SUFFIXARRAY;
@@ -584,6 +586,7 @@ public class TestLibrary {
 		return LCPArray;
 	}
 	
+	//Method not used - attempt to create own method to generate LCP array
 	private ArrayList<Integer> trialGenerateLCPArray() {
 		String word = STOREDWORD;
 		ArrayList<Integer>  suffixArray = SUFFIXARRAY;
@@ -632,7 +635,6 @@ public class TestLibrary {
 				thisLCP="0";
 			}
 			unsortedLCPArray.add(""+thisLCP);
-			//System.out.println("Unsorted Array: "+unsortedLCPArray);
 			
 		}
 		ArrayList<Integer> newLCPArray = new ArrayList<Integer>();
@@ -666,7 +668,7 @@ public class TestLibrary {
 	}
 	
 	
-		
+	//Redundant method, called by old method to find the lcp of two suffixes	
 	private int LCParray(String suffOne, String suffTwo) {
 			
 			String lcp = "";
@@ -692,6 +694,7 @@ public class TestLibrary {
 			return lcp.length();
 		}
 		
+	//Redundant method to find inverse suffix array, had a complexity of O(n^2)
 	private ArrayList<Integer> oldGenerateInverseSuffixArray (){
 			ArrayList<Integer> suffixArray = SUFFIXARRAY;
 			ArrayList<Integer> inverse = new ArrayList<Integer>();
@@ -710,6 +713,7 @@ public class TestLibrary {
 			return inverse;
 		}
 	
+	//Method to generate the inverse suffix array, has complexity O(n)
 	private ArrayList<Integer> generateInverseSuffixArray (){
 		ArrayList<Integer> suffixArray = SUFFIXARRAY;
 		int[] inv = new int[suffixArray.size()];
@@ -725,10 +729,12 @@ public class TestLibrary {
 		return inverse;
 	}
 	
-		
+	//Public method to return the number of unique subwords of a certain length
 	public int noOfSubwordsSetLength(int lengthOfSubword){
+		if(lengthOfSubword>STOREDWORDLENGTH || lengthOfSubword<0) {
+			return 0;
+		}else {
 			int subBound = (STOREDWORD.length()+1)-lengthOfSubword;
-			
 			for(int i=1; i<LCPARRAY.size(); i++) {
 				if(LCPARRAY.get(i) >= lengthOfSubword) {
 					subBound = subBound - 1;
@@ -737,9 +743,10 @@ public class TestLibrary {
 			
 			return subBound;
 		}
+	}
 		
-	
-	public ArrayList<ArrayList<int []>> eliminateRepititionsInTbl(ArrayList<ArrayList<int []>> tableToOptimise) {
+	//Method to remove duplicate records in table
+	private ArrayList<ArrayList<int []>> eliminateRepititionsInTbl(ArrayList<ArrayList<int []>> tableToOptimise) {
 			ArrayList<Integer> inverseSuffixArray = INVERSESUFFIXARRAY;
 			ArrayList<Integer> lcpArray = LCPARRAY;
 			//ArrayList<ArrayList<int []>> tableToOptimise = TABLE;
@@ -787,10 +794,10 @@ public class TestLibrary {
 				freshRecords.clear();
 			
 			}
-			//TABLE = optimisedTable;
 			return optimisedTable;
 		}
 		
+	//Method to look up the longest common prefix of two suffixes
 	private int lookUpLCP(ArrayList<Integer> LCPArray, ArrayList<Integer> inverseSuffixArray, int one, int two) {
 			int SAOne;
 			int SATwo;
@@ -820,6 +827,7 @@ public class TestLibrary {
 			}
 		}
 		
+	//Method to look up smallest value within a range in an array. Has complexity O(n)
 	private int rangeMinimumQuery (ArrayList<Integer> array, int firstPos, int lastPos) {
 			
 			int lowest=array.get(firstPos);
@@ -835,6 +843,7 @@ public class TestLibrary {
 			return lowestPos;
 		}
 			
+	//Public method that returns all subwords of a string
 	public ArrayList<String> enumerateAllSubwords() {
 			ArrayList<int []> subwordList = new ArrayList<int[]>();
 			int [] subword = new int[2];
@@ -884,6 +893,7 @@ public class TestLibrary {
 			return sbwords;
 		}
 		
+	//Public method that takes two spans of a string and tests their equality
 	public boolean stringEqualityTesting(int[] strOne, int[] strTwo) {
 			int a = strOne[0];
 			int b = strOne[1];
@@ -899,7 +909,8 @@ public class TestLibrary {
 			return strEqual;
 		}
 		
-	public ArrayList<ArrayList<int []>> deDuplicate(ArrayList<ArrayList<int []>> tbl) {
+	//Method to deduplicate a table
+	private ArrayList<ArrayList<int []>> deDuplicate(ArrayList<ArrayList<int []>> tbl) {
 			ArrayList<ArrayList<int []>> oldTable = tbl;
 			ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
 			
@@ -925,7 +936,8 @@ public class TestLibrary {
 			}
 			return newTable;
 		}
-
+	
+	//Method to project a table onto a set of columns
 	public ArrayList<ArrayList<int []>> projection(ArrayList<ArrayList<int []>> oldTable, ArrayList<String> oldCols, ArrayList<String> newCols) {
 		ArrayList<ArrayList<int []>> newTable = new ArrayList<ArrayList<int []>>();
 		ArrayList<int []> newrec = new ArrayList<>();
@@ -951,6 +963,7 @@ public class TestLibrary {
 		
 	}
 	
+	//Method to join two arrays of columns
 	private ArrayList<String> colJoin(ArrayList<String> colsOne, ArrayList<String> colsTwo){
 		ArrayList<String> fullColList = new ArrayList<>();
 		fullColList.addAll(colsOne);
@@ -972,6 +985,7 @@ public class TestLibrary {
 		return fullColList;
 	}
 
+	//Method to join two tables
 	public ArrayList<ArrayList<int []>> join(ArrayList<ArrayList<int []>> tableOne, ArrayList<String> colsOne, ArrayList<ArrayList<int []>> tableTwo, ArrayList<String> colsTwo) {
 		
 		ArrayList<ArrayList<int []>> newTable = new ArrayList<>();
@@ -1027,12 +1041,11 @@ public class TestLibrary {
 				
 			}
 		}
-		//TABLE=newTable;
-		//COLUMNS = fullColList;
 		
 		return newTable;
 	}
 
+	//Method to semijoin two tables
 	public ArrayList<ArrayList<int []>> semijoin(ArrayList<ArrayList<int []>> tableOne, ArrayList<String> colsOne, ArrayList<ArrayList<int []>> tableTwo, ArrayList<String> colsTwo) {
 		ArrayList<ArrayList<int []>> newTbl = new ArrayList<>();
 		ArrayList<Integer> colIntMatch = new ArrayList<>();
@@ -1063,13 +1076,10 @@ public class TestLibrary {
 				}
 			}
 		}
-		
-		TABLE = newTbl;
-		COLUMNS = colsOne;
 		return newTbl;
 	}
 	
-	
+	//Get methods to return arrays, tables, columns, text and text length
 	public ArrayList<Integer> getSuffixArray(){
 			return SUFFIXARRAY;
 		}
@@ -1085,9 +1095,12 @@ public class TestLibrary {
 	public ArrayList<String> getCols(){
 		return COLUMNS;
 	}
-	public void setTable(ArrayList<ArrayList<int []>> tbl){
-			TABLE=tbl;
-		}
+	public String getText(){
+		return STOREDWORD;
+	}
+	public int getTextLength() {
+		return STOREDWORDLENGTH;
+	}
 
 	
 
