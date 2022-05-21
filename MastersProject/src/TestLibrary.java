@@ -1079,7 +1079,7 @@ public class TestLibrary {
 		return newTbl;
 	}
 	
-	//Get methods to return arrays, tables, columns, text and text length
+	//Public get methods to return arrays, tables, columns, text and text length
 	public ArrayList<Integer> getSuffixArray(){
 			return SUFFIXARRAY;
 		}
